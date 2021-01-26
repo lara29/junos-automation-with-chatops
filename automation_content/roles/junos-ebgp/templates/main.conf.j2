@@ -1,0 +1,62 @@
+interfaces {
+{% for neighbor in underlay.neighbors %}
+    {{ neighbor.interface }} {
+        unit 0 {
+            description "to {{ neighbor.name }}";
+            family inet {
+                address {{ neighbor.local_ip }}/31;
+            }
+        }
+    }
+{% endfor %}
+}
+protocols {
+    bgp {
+        group EBGP {
+            type external;
+            local-as {{ underlay.local.asn }};
+            multipath multiple-as;
+            family inet unicast;
+{% for neighbor in underlay.neighbors %}
+            neighbor {{ neighbor.peer_ip }} {
+                local-address {{ neighbor.local_ip }};
+                peer-as {{ neighbor.asn }};
+                export [ REDIST-LO0 NHS ];
+            }
+{% endfor %}
+        }
+    }
+}
+
+routing-options {
+    autonomous-system {{ underlay.local.asn }};
+    router-id {{ loopback_ip }};
+    forwarding-table {
+        export PFE-LB;
+    }
+}
+
+policy-options {
+    policy-statement PFE-LB {
+        then {
+            load-balance per-packet;
+        }
+    }
+    policy-statement NHS {
+        term 1 {
+            from protocol bgp;
+            then {
+                next-hop self;
+            }
+        }
+    }
+    policy-statement REDIST-LO0 {
+        term 1 {
+            from {
+                protocol direct;
+                interface lo0.0;
+            }
+             then accept;
+        }
+    }
+}

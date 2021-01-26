@@ -1,0 +1,16 @@
+---
+- name: "Revert to previous configuration"
+  hosts: all
+  roles:
+  - Juniper.junos
+  connection: local
+  gather_facts: false
+
+  tasks:
+  - name: "Rollback configuration"
+    juniper_junos_config:
+      rollback: "1"   
+    register: response
+  - name: "Print response"
+    debug:
+      var: response

@@ -39,9 +39,25 @@
 #   Khelil Sator
 
 child_process = require('child_process')
-initial_response=["I am on it!", "I'll take care of that right away!", "Working on it!", "Understood!"]
+initial_response=["I am on it!", "I'll take care of that right away!", "Working on it!", "Coffee is brewing!"]
 
 module.exports = (robot) ->
+   
+   robot.respond /deploy ipfabric/i, (msg) ->
+     msg.send msg.random initial_response
+     child_process.exec "ansible-playbook $PWD/automation_content/pb.config.all.commit.yaml", (error, stdout, stderr) ->
+       if error
+         msg.send "Oops! " + error + stderr
+       else
+         msg.send(stdout)
+
+   robot.respond /generate ipfabric/i, (msg) ->
+     msg.send msg.random initial_response
+     child_process.exec "ansible-playbook $PWD/automation_content/pb.config.all.yaml", (error, stdout, stderr) ->
+       if error
+         msg.send "Oops! " + error + stderr
+       else
+         msg.send(stdout)
 
    robot.respond /dev=(.*) playbook (.*)/i, (msg) ->
      msg.send msg.random initial_response

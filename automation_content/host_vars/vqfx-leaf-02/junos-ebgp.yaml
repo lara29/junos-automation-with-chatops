@@ -1,0 +1,14 @@
+underlay:
+    local:
+        asn: 60002
+    neighbors:
+      - interface: xe-0/0/0
+        name: vqfx-spine-01
+        asn: 60011
+        peer_ip: 172.20.0.12
+        local_ip: 172.20.0.13
+      - interface: xe-0/0/1
+        name: vqfx-spine-02
+        asn: 60011
+        peer_ip: 172.20.0.22
+        local_ip: 172.20.0.23
